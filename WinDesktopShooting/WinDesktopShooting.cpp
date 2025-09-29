@@ -264,7 +264,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             //VK : Virtual Key            
         case VK_UP:
-            OnKeyUpForward(hWnd, VK_UP, HouseStartPoint.Y);
+            //OnKeyUpForward(hWnd, wParam, HouseStartPoint.Y);
             //0번 자리가 0이면
             if ((KEY_DOWN & (1 << 1)) != (1 << 1))
             {
