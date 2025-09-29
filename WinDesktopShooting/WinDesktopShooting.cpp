@@ -15,6 +15,7 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
+
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -31,6 +32,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // TODO: 여기에 코드를 입력합니다.
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+    //Gdiplus 초기화 -> 종료 필요
+    ULONG_PTR Token;
+    Gdiplus::GdiplusStartupInput StartupInput;
+    Gdiplus::GdiplusStartup(&Token, &StartupInput, nullptr);
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -56,6 +62,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
+
+    //Gdiplus 정리
+    Gdiplus::GdiplusShutdown(Token);
 
     return (int) msg.wParam;
 }
@@ -155,8 +164,61 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            Gdiplus::Graphics GraphicsInstance(hdc);
+
+            Gdiplus::SolidBrush RedBrush(Gdiplus::Color(255, 255, 0, 0));
+            Gdiplus::SolidBrush BlueBrush(Gdiplus::Color(255, 0, 0, 255));
+            Gdiplus::Pen BlackPen(Gdiplus::Color(255, 0, 0, 0));
+            
+            GraphicsInstance.FillRectangle(&RedBrush, 0, 0, 60, 120);
+            //파란색 원
+            GraphicsInstance.FillEllipse(&BlueBrush, 80, 0, 80, 80);
+            //기타 도형
+            GraphicsInstance.FillPie(&RedBrush, 0, 140, 80, 80, Gdiplus::REAL(270), Gdiplus::REAL(-180));
+
+            //집 모양 만들기
+            //지붕
+            Gdiplus::Point* RoofPoints = new Gdiplus::Point[3]
+            {
+                Gdiplus::Point(200, 100),
+                Gdiplus::Point(120, 160),
+                Gdiplus::Point(280, 160)
+            };
+            GraphicsInstance.FillPolygon(&BlueBrush, RoofPoints, 3);
+
+            Gdiplus::Point* WallPoints = new Gdiplus::Point[4]
+            {
+                Gdiplus::Point(140, 160),
+                Gdiplus::Point(140, 220),
+                Gdiplus::Point(260, 220),
+                Gdiplus::Point(260, 160)
+            };
+            
+            //Gdiplus::Rect WallRect(140, 160, 120, 80);
+            //GraphicsInstance.DrawRectangle(&BlackPen, WallRect);
+            GraphicsInstance.DrawLines(&BlackPen, WallPoints, 4);
+
             EndPaint(hWnd, &ps);
         }
+        break;
+        //입력 처리
+    case WM_KEYDOWN:
+    {
+        switch (wParam)
+        {
+            //VK : Virtual Key            
+        case VK_LEFT:
+            OutputDebugStringW(L"왼쪽키를 눌렀다.\n");
+            InvalidateRect(hWnd, nullptr, TRUE);        //창을 다시 그려줌(WM_PAINT 메시지 처리)
+            break;
+        case VK_RIGHT:
+            OutputDebugStringW(L"오른쪽키를 눌렀다.\n");
+            InvalidateRect(hWnd, nullptr, TRUE);        //창을 다시 그려줌(WM_PAINT 메시지 처리)
+            break;
+        case VK_ESCAPE:
+            DestroyWindow(hWnd);
+        }
+    }       
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -166,6 +228,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return 0;
 }
+
+//실습
+//1. 집모양을 그리고 키보드 입력으로 상하좌우 움직이기
+//2. 누르고 있으면 한번만 움직여야 한다.
 
 // 정보 대화 상자의 메시지 처리기입니다.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
