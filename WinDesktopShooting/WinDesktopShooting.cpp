@@ -18,6 +18,10 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 Gdiplus::Point g_HousePosition(100, 100);
 constexpr int g_HouseVerticesCount = 7;
+
+Gdiplus::Point g_AppPosition(200, 100);
+Gdiplus::Point g_ScreenSize(800, 600);
+
 const Gdiplus::Point g_HouseVertices[g_HouseVerticesCount] =
 {
     {0,-100},{50,-50},{30,-50},{30,0},{-30,0},{-30,-50},{-50,-50}
@@ -125,10 +129,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
+   //클라이언트 영역(타이틀 부분 제외) 크기를 원하는 크기로 조절
+   RECT rc = { 0, 0, g_ScreenSize.X, g_ScreenSize.Y };
+   //윈도우 스타일에 맞는 rect 가져옴
+   AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
+       FALSE, 0);
+
    HWND hWnd = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,      //WS_MAXIMIZEBOX : 최대화 버튼 , WS_THICKFRAME 창 크기조절 선택
-       200/*CW_USEDEFAULT*/, 100/*0*/,  //시작 좌표
-       400/*CW_USEDEFAULT*/, 300/*0*/,  //사이즈
+       g_AppPosition.X, g_AppPosition.Y,  //시작 좌표
+       rc.right - rc.left, rc.bottom - rc.top,  //윈도우 스타일에 맞춰 재조정된 크기
        nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
