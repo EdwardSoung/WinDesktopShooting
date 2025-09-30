@@ -4,9 +4,12 @@
 #include "framework.h"
 #include "WinDesktopShooting.h"
 #include "Enums.h"
+#include "Player.h"
+#include "Background.h"
 
 #include <crtdbg.h>
 #include <unordered_map>
+#include <chrono>
 //#define _CRTDBG_MAP_ALLOC
 //#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 
@@ -16,21 +19,29 @@
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-Gdiplus::Point g_HousePosition(100, 100);
-constexpr int g_HouseVerticesCount = 7;
 
 Gdiplus::Point g_AppPosition(200, 100);
-Gdiplus::Point g_ScreenSize(800, 600);
+Gdiplus::Point g_ScreenSize(600, 800);
 
-const Gdiplus::Point g_HouseVertices[g_HouseVerticesCount] =
-{
-    {0,-100},{50,-50},{30,-50},{30,0},{-30,0},{-30,-50},{-50,-50}
-};
-std::unordered_map<InputDirection, bool> g_KeyWasPressedMap;
+HWND g_hMainWindow = nullptr;
 
 //화면 깜박임 막기위한 2중 버퍼
 Gdiplus::Bitmap* g_BackBuffer = nullptr;                //빈 종이
 Gdiplus::Graphics* g_BackBufferGraphics = nullptr;      //그릴 도구
+
+double deltaY = 0;
+double MapMoveSpeed = 50.0;
+
+LARGE_INTEGER prevTick, currentTick;
+double frameTime;
+double fps;
+double deltaTime = 0;
+
+// 윈도우 64bit 시스템을 위한 QueryPerformanceFrequency
+LARGE_INTEGER frequency;
+
+Player* g_Player = nullptr;
+Background* g_Background = nullptr;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -54,11 +65,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Gdiplus::GdiplusStartupInput StartupInput;
     Gdiplus::GdiplusStartup(&Token, &StartupInput, nullptr);
 
-    g_KeyWasPressedMap[InputDirection::Up] = false;
-    g_KeyWasPressedMap[InputDirection::Down] = false;
-    g_KeyWasPressedMap[InputDirection::Left] = false;
-    g_KeyWasPressedMap[InputDirection::Right] = false;
-
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_WINDESKTOPSHOOTING, szWindowClass, MAX_LOADSTRING);
@@ -74,15 +80,51 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
+    QueryPerformanceFrequency(&frequency); // 타이머 주파수 얻기
+
     // 기본 메시지 루프입니다:                                                                                3. 메시지 루프
-    while (GetMessage(&msg, nullptr, 0, 0))
+    //std::chrono::steady_clock::time_point Prev = std::chrono::steady_clock::now();
+    while (true)
+    {
+        //auto Current = std::chrono::steady_clock::now();
+        QueryPerformanceCounter(&currentTick); // 현재 시간 가져오기
+
+        // 프레임 시간 계산 (마이크로초 단위)
+        frameTime = (currentTick.QuadPart - prevTick.QuadPart) * 1000000.0 / frequency.QuadPart;
+
+        // FPS 계산 (초 단위)
+        fps = 1000000.0 / frameTime;
+        deltaTime = 1.0 / fps;
+
+        //auto dur = Current - Prev;
+        //deltaTime = dur.count() * 0.000000001;
+            
+        //Message Queue가 없어도 한번 확인
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (msg.message == WM_QUIT)
+                break;
+
+            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+        InvalidateRect(g_hMainWindow, nullptr, FALSE);
+
+        prevTick = currentTick;
+        //Prev = Current;
+    }
+
+    /*while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-    }
+    }*/
 
     //Gdiplus 정리
     Gdiplus::GdiplusShutdown(Token);
@@ -138,19 +180,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
        FALSE, 0);
 
-   HWND hWnd = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
+   g_hMainWindow = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,      //WS_MAXIMIZEBOX : 최대화 버튼 , WS_THICKFRAME 창 크기조절 선택
        g_AppPosition.X, g_AppPosition.Y,  //시작 좌표
        rc.right - rc.left, rc.bottom - rc.top,  //윈도우 스타일에 맞춰 재조정된 크기
        nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
+   if (!g_hMainWindow)
    {
       return FALSE;
    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+   ShowWindow(g_hMainWindow, nCmdShow);
+   UpdateWindow(g_hMainWindow);
 
    return TRUE;
 }
@@ -178,6 +220,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //안만들어졌으면 에러 출력
             MessageBox(hWnd, L"Back Buffer Graphics Gnenarate failed!", L"Error", MB_OK | MB_ICONERROR);
         }
+        g_Player = new Player(g_ScreenSize, L"./Images/Airplane01.png");
+        g_Background = new Background(g_ScreenSize, L"./Images/BG.png");
+        
         break;
     case WM_COMMAND:
         {
@@ -201,33 +246,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-
             if (g_BackBufferGraphics)
             {
                 g_BackBufferGraphics->Clear(Gdiplus::Color(255, 0, 0, 0));
-                
-                Gdiplus::SolidBrush GreenBrush(Gdiplus::Color(255, 0, 255, 0));
-                Gdiplus::SolidBrush BlueBrush(Gdiplus::Color(255, 0, 0, 255));
-                Gdiplus::SolidBrush OrangeBrush(Gdiplus::Color(255, 255, 165, 0));
-                
-                for (int i = 0; i < 2; i++)
+
+                //Gdiplus::SolidBrush OrangeBrush(Gdiplus::Color(255, 165, 100, 0));
+                //for (int i = -g_ScreenSize.Y / 50; i < g_ScreenSize.Y / 50; i++)
+                //{
+                //    for (int j = 0; j < g_ScreenSize.X / 50; j++)
+                //    {                        
+                //        g_BackBufferGraphics->FillRectangle(&OrangeBrush, j * 50, i * 50 + static_cast<int>(deltaY), 3, 3);
+                //    }
+                //}
+
+                if (g_Background)
                 {
-                    for (int j = 0; j < 10; j++)
-                    {
-                        g_BackBufferGraphics->FillRectangle(&BlueBrush, 30 + 70 * j, 50 + 70 * i, 60, 60);
-                    }
+                    g_Background->Draw(g_BackBufferGraphics);
+                    g_Background->Scroll(g_BackBufferGraphics, deltaTime);
                 }
 
+                //deltaY += deltaTime * MapMoveSpeed;
+                //if (deltaY >= g_ScreenSize.Y)
+                //    deltaY = 0;
 
-                Gdiplus::Pen GreenPen(Gdiplus::Color(255, 0, 255, 0), 2.0f);
-                Gdiplus::Point Positions[g_HouseVerticesCount];
-                for (int i = 0; i < g_HouseVerticesCount; i++)
+                if (g_Player)
                 {
-                    Positions[i] = g_HousePosition + g_HouseVertices[i];
+                    g_Player->Draw(g_BackBufferGraphics);
+                    //g_BackBufferGraphics->DrawImage(g_PlayerImage, 100, 100, PlayerImageSize, PlayerImageSize);
                 }
-                //GraphicsInstance.DrawPolygon(&GreenPen, Positions, g_HouseVerticesCount);
-                g_BackBufferGraphics->FillPolygon(&GreenBrush, Positions, g_HouseVerticesCount);
-                
+                else
+                {
+                    Gdiplus::SolidBrush RedBrush(Gdiplus::Color(255, 255, 0, 0));
+                    g_BackBufferGraphics->FillEllipse(&RedBrush, 100, 100, 64, 64);
+                }
                 Gdiplus::Graphics GraphicsInstance(hdc);
                 GraphicsInstance.DrawImage(g_BackBuffer, 0, 0);
             }
@@ -238,45 +289,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //입력 처리
     case WM_KEYDOWN:
     {
+        g_Player->HandleKeyState(wParam, true);
+        InvalidateRect(g_hMainWindow, nullptr, FALSE);
         switch (wParam)
         {
-            //VK : Virtual Key            
-        case VK_LEFT:
-            //if (!g_KeyWasPressedMap[static_cast<InputDirection>(wParam)])
-            {
-                g_KeyWasPressedMap[static_cast<InputDirection>(wParam)] = true;
-                g_HousePosition.X -= 10;
-                OutputDebugStringW(L"왼쪽키를 눌렀다.\n");
-                InvalidateRect(hWnd, nullptr, FALSE);        //창을 다시 그려줌(WM_PAINT 메시지 처리)
-            }
-            break;
-        case VK_RIGHT:
-            //if (!g_KeyWasPressedMap[static_cast<InputDirection>(wParam)])
-            {
-                g_KeyWasPressedMap[static_cast<InputDirection>(wParam)] = true;
-                g_HousePosition.X += 10;
-                OutputDebugStringW(L"오른키를 눌렀다.\n");
-                InvalidateRect(hWnd, nullptr, FALSE);        //창을 다시 그려줌(WM_PAINT 메시지 처리)
-            }
-            break;
-        case VK_UP:
-            //if (!g_KeyWasPressedMap[static_cast<InputDirection>(wParam)])
-            {
-                g_KeyWasPressedMap[static_cast<InputDirection>(wParam)] = true;
-                g_HousePosition.Y -= 10;
-                OutputDebugStringW(L"오른키를 눌렀다.\n");
-                InvalidateRect(hWnd, nullptr, FALSE);        //창을 다시 그려줌(WM_PAINT 메시지 처리)
-            }
-            break;
-        case VK_DOWN:
-            //if (!g_KeyWasPressedMap[static_cast<InputDirection>(wParam)])
-            {
-                g_KeyWasPressedMap[static_cast<InputDirection>(wParam)] = true;
-                g_HousePosition.Y += 10;
-                OutputDebugStringW(L"오른키를 눌렀다.\n");
-                InvalidateRect(hWnd, nullptr, FALSE);        //창을 다시 그려줌(WM_PAINT 메시지 처리)
-            }
-            break;
+        
         case VK_ESCAPE:
             DestroyWindow(hWnd);
         }
@@ -288,11 +305,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //지우지 않고 넘김
         return 1;
     case WM_KEYUP:
-    {
-        g_KeyWasPressedMap[static_cast<InputDirection>(wParam)] = false;
-    }
+        g_Player->HandleKeyState(wParam, false);
         break;
     case WM_DESTROY:
+        delete g_Player;
+        g_Player = nullptr;
+
+        delete g_Background;
+        g_Background = nullptr;
+
         delete g_BackBufferGraphics;
         g_BackBufferGraphics = nullptr;
         delete g_BackBuffer;
@@ -301,6 +322,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     default:
+        
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
