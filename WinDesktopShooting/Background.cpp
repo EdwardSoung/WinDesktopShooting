@@ -1,25 +1,22 @@
 #include "Background.h"
 #include "GameManager.h"
+#include "ResourceManager.h"
 
 Background::~Background()
 {
-    if (Image)
-    {
-        delete Image;
-        Image = nullptr;
-    }
 }
 
 void Background::OnDraw(Gdiplus::Graphics* InGraphics)
-{    
+{
+    auto Image = Singleton<ResourceManager>::Instance().GetResource(ImageType);
     if (Image)
     {
         int newY = static_cast<int>(Position.Y - PixelSize * Pivot.Y + Offset);
-        if (newY > GameManager::GetInstance().ScreenHeight)
+        if (Offset > Singleton<GameManager>::Instance().ScreenHeight)
             Offset = -PixelSize;
     
-        int xCount = GameManager::GetInstance().ScreenWidth / BorderSize() + 1;
-        int yCount = GameManager::GetInstance().ScreenHeight / BorderSize() + 1;
+        int xCount = Singleton<GameManager>::Instance().ScreenWidth / BorderSize() + 1;
+        int yCount = Singleton<GameManager>::Instance().ScreenHeight / BorderSize() + 1;
         int TotalHeight = BorderSize() * yCount;
 
         for (int i = -1; i < yCount; i++)

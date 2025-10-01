@@ -5,6 +5,8 @@
 #include "WinDesktopShooting.h"
 #include "Enums.h"
 #include "GameManager.h"
+#include "ResourceManager.h"
+#include "Singleton.h"
 
 #include <crtdbg.h>
 #include <unordered_map>
@@ -51,6 +53,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Gdiplus::GdiplusStartupInput StartupInput;
     Gdiplus::GdiplusStartup(&Token, &StartupInput, nullptr);
 
+    Singleton<ResourceManager>::Instance().GenerateResources();
+    Singleton<GameManager>::Instance().Initialize();
+
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_WINDESKTOPSHOOTING, szWindowClass, MAX_LOADSTRING);
@@ -95,9 +100,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             }
         }
 
-        GameManager::GetInstance().Tick(deltaTime);
+        Singleton<GameManager>::Instance().Tick(deltaTime);
 
-        InvalidateRect(GameManager::GetInstance().GetMainWindow(), nullptr, FALSE);
+        InvalidateRect(Singleton<GameManager>::Instance().GetMainWindow(), nullptr, FALSE);
 
         prevTick = currentTick;
     }
@@ -160,15 +165,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    //클라이언트 영역(타이틀 부분 제외) 크기를 원하는 크기로 조절
-   RECT rc = { 0, 0, GameManager::GetInstance().ScreenWidth, GameManager::GetInstance().ScreenHeight };
+   RECT rc = { 0, 0, Singleton<GameManager>::Instance().ScreenWidth, Singleton<GameManager>::Instance().ScreenHeight };
    //윈도우 스타일에 맞는 rect 가져옴
    AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
        FALSE, 0);
 
-
    auto mainWindow = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,      //WS_MAXIMIZEBOX : 최대화 버튼 , WS_THICKFRAME 창 크기조절 선택
-       GameManager::GetInstance().GetAppPosition().X, GameManager::GetInstance().GetAppPosition().Y,  //시작 좌표
+       Singleton<GameManager>::Instance().GetAppPosition().X, Singleton<GameManager>::Instance().GetAppPosition().Y,  //시작 좌표
        rc.right - rc.left, rc.bottom - rc.top,  //윈도우 스타일에 맞춰 재조정된 크기
        nullptr, nullptr, hInstance, nullptr);
 
@@ -177,7 +181,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   GameManager::GetInstance().UpdateWindow(mainWindow);
+   Singleton<GameManager>::Instance().UpdateWindow(mainWindow);
 
    ShowWindow(mainWindow, nCmdShow);
    UpdateWindow(mainWindow);
@@ -201,7 +205,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         //윈도우가 생성되었을 때
     case WM_CREATE:
-        GameManager::GetInstance().Initialize();      
+
 
         break;
     case WM_COMMAND:
@@ -226,7 +230,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            GameManager::GetInstance().Draw(hdc);
+            Singleton<GameManager>::Instance().Draw(hdc);
 
             EndPaint(hWnd, &ps);
         }
@@ -234,7 +238,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //입력 처리
     case WM_KEYDOWN:
     {
-        GameManager::GetInstance().HandleKeyState(wParam, true);
+        Singleton<GameManager>::Instance().HandleKeyState(wParam, true);
         switch (wParam)
         {        
         case VK_ESCAPE:
@@ -248,7 +252,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //지우지 않고 넘김
         return 1;
     case WM_KEYUP:
-        GameManager::GetInstance().HandleKeyState(wParam, false);
+        Singleton<GameManager>::Instance().HandleKeyState(wParam, false);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);

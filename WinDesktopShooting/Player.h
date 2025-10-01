@@ -8,7 +8,7 @@ class Player : public Actor
 {
 public:
 	Player() = delete;
-	Player(IN const WCHAR* Path) : Actor(Path) 
+	Player(RenderLayer InLayer) : Actor(InLayer, ResourceType::Player)
 	{
 		InitPosition();
 	}

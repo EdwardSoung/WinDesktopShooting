@@ -19,6 +19,12 @@
     <Filter Include="헤더 파일\Actors">
       <UniqueIdentifier>{b2546819-8c97-47b5-b3d5-b5febd13299b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Managers">
+      <UniqueIdentifier>{ffb7e2c5-2ec6-4399-ac1f-ff89bd57b8cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Actors\Managers">
+      <UniqueIdentifier>{436e6dd7-2a02-4f2a-89a7-8fc61630f404}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -45,14 +51,20 @@
     <ClInclude Include="Background.h">
       <Filter>헤더 파일\Actors</Filter>
     </ClInclude>
-    <ClInclude Include="GameManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="TestHouseActor.h">
       <Filter>헤더 파일\Actors</Filter>
     </ClInclude>
     <ClInclude Include="TestGridActor.h">
       <Filter>헤더 파일\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
+      <Filter>헤더 파일\Actors\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>헤더 파일\Actors\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,14 +80,20 @@
     <ClCompile Include="Background.cpp">
       <Filter>소스 파일\Actors</Filter>
     </ClCompile>
-    <ClCompile Include="GameManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TestHouseActor.cpp">
       <Filter>소스 파일\Actors</Filter>
     </ClCompile>
     <ClCompile Include="TestGridActor.cpp">
       <Filter>소스 파일\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>소스 파일\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>소스 파일\Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
 class TestGridActor : public Actor
 {
 public:
-	TestGridActor();
+	TestGridActor(RenderLayer InLayer);
 	virtual ~TestGridActor();
 
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
@@ -13,6 +13,6 @@ public:
 private:
 	Gdiplus::SolidBrush* OrangeBrush = nullptr;
 	const int PixelDistance = 50;
-	const int DotSize = 3;
+	const int DotSize = 5;
 };
 

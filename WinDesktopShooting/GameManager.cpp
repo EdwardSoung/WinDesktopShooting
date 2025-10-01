@@ -9,19 +9,23 @@ void GameManager::Initialize()
 		//안만들어졌으면 에러 출력
 		MessageBox(MainWindow, L"Back Buffer Graphics Gnenarate failed!", L"Error", MB_OK | MB_ICONERROR);
 	}
-    Actors.push_back(new Background(L"./Images/BG.png"));
-    Actors.push_back(new TestGridActor());
-    //Actors.push_back(new TestHouseActor());
-    MainPlayer = new Player(L"./Images/Airplane01.png");
-    Actors.push_back(MainPlayer);
+
+    MainPlayer = new Player(RenderLayer::Player);
+    AddActor(MainPlayer);
+    AddActor(new Background(RenderLayer::Background));
+    AddActor(new TestGridActor(RenderLayer::Test));
 }
 
 void GameManager::Destroy()
 {
-    for (Actor* ActorData : Actors)
+    for (auto ActorData : Actors)
     {
-        delete ActorData;
-        ActorData = nullptr;
+        for (auto actor : ActorData.second)
+        {
+            delete actor;
+            actor = nullptr;
+
+        }
     }
 
     Actors.clear();
@@ -32,10 +36,13 @@ void GameManager::Destroy()
 
 void GameManager::Tick(float InDeltaTime)
 {
-	for (Actor* ActorData : Actors)
-	{
-		ActorData->OnTick(InDeltaTime);
-	}
+    for (auto ActorData : Actors)
+    {
+        for (auto actor : ActorData.second)
+        {
+            actor->OnTick(InDeltaTime);
+        }
+    }
 }
 
 void GameManager::Draw(HDC InHdc)
@@ -44,9 +51,12 @@ void GameManager::Draw(HDC InHdc)
     {
         BackBufferGraphics->Clear(Gdiplus::Color(255, 0, 0, 0));
 
-        for (Actor* ActorData : Actors)
+        for (auto ActorData : Actors)
         {
-            ActorData->OnDraw(BackBufferGraphics);
+            for (auto actor : ActorData.second)
+            {
+                actor->OnDraw(BackBufferGraphics);
+            }
         }
 
     }
@@ -58,4 +68,10 @@ void GameManager::Draw(HDC InHdc)
 void GameManager::HandleKeyState(WPARAM InKey, bool InIsPressed)
 {
     MainPlayer->HandleKeyState(InKey, InIsPressed);
+}
+
+void GameManager::AddActor(Actor* InActor)
+{
+    auto ActorList = &Actors[InActor->GetLayer()];
+    ActorList->push_back(InActor);
 }

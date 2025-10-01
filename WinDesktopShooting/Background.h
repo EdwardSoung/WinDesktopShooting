@@ -6,7 +6,7 @@ class Background : public Actor
 {
 public:
 	Background() = delete;
-	Background(IN const WCHAR* Path) : Actor(Path)
+	Background(RenderLayer InLayer) : Actor(InLayer, ResourceType::Background)
 	{
 		InitPosition();
 	}

@@ -1,6 +1,6 @@
 #include "TestHouseActor.h"
 
-TestHouseActor::TestHouseActor() : Actor(nullptr)
+TestHouseActor::TestHouseActor(RenderLayer InLayer) : Actor(InLayer)
 {
 
 }

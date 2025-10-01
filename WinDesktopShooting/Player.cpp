@@ -1,13 +1,9 @@
 #include "Player.h"
 #include "GameManager.h"
+#include "ResourceManager.h"
 
 Player::~Player()
 {
-    if (Image)
-    {
-        delete Image;
-        Image = nullptr;
-    }
 }
 
 void Player::HandleKeyState(IN WPARAM Key, IN bool IsPressed)
@@ -24,7 +20,7 @@ void Player::OnDraw(Gdiplus::Graphics* InGraphics)
 {
     Actor::OnDraw(InGraphics);
 
-    if (!Image)
+    if (!Singleton<ResourceManager>::Instance().GetResource(ImageType))
     {
         Gdiplus::SolidBrush RedBrush(Gdiplus::Color(255, 255, 0, 0));
         InGraphics->FillEllipse(
@@ -49,8 +45,8 @@ void Player::OnTick(double InDeltaTime)
     }
 
     if (Position.X <= PixelSize * Pivot.X)
-        Position.X = GameManager::GetInstance().ScreenWidth - PixelSize * Pivot.X;
-    else if (Position.X >= GameManager::GetInstance().ScreenWidth - PixelSize * Pivot.X)
+        Position.X = Singleton<GameManager>::Instance().ScreenWidth - PixelSize * Pivot.X;
+    else if (Position.X >= Singleton<GameManager>::Instance().ScreenWidth - PixelSize * Pivot.X)
         Position.X = PixelSize * Pivot.X;
 
 }
@@ -59,6 +55,6 @@ void Player::OnTick(double InDeltaTime)
 
 void Player::InitPosition()
 {
-    Position.X = GameManager::GetInstance().ScreenWidth * Pivot.X;
-    Position.Y = GameManager::GetInstance().ScreenHeight - PixelSize;
+    Position.X = 300.0f;
+    Position.Y = 700.0f;
 }

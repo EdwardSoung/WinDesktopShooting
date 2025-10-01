@@ -1,22 +1,15 @@
 #include "Actor.h"
+#include "ResourceManager.h"
 
-Actor::Actor(IN const WCHAR* Path)
+Actor::Actor(RenderLayer InLayer, ResourceType InType)
 {
-    if (Path == nullptr)
-        return;
-
-    Image = new Gdiplus::Bitmap(Path);
-    if (Image->GetLastStatus() != Gdiplus::Ok)
-    {
-        //플레이어 이미지 정상 로딩 실패
-        delete Image;
-        Image = nullptr;
-        //MessageBox(g_hMainWindow, L"플레이어 이미지 로드 실패", L"오류", MB_OK | MB_ICONERROR);
-    }
+    Layer = InLayer;
+    ImageType = InType;
 }
 
 void Actor::OnDraw(Gdiplus::Graphics* InGraphics)
 {
+    auto Image = Singleton<ResourceManager>::Instance().GetResource(ImageType);
     if (Image)
     {
         InGraphics->DrawImage(Image,
