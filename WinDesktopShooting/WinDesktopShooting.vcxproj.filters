@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\Actors">
+      <UniqueIdentifier>{998c8ad7-9e67-466b-bc12-cf0cfa8c14eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Actors">
+      <UniqueIdentifier>{b2546819-8c97-47b5-b3d5-b5febd13299b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -30,11 +36,23 @@
     <ClInclude Include="Enums.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Actor.h">
+      <Filter>헤더 파일\Actors</Filter>
+    </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Actors</Filter>
     </ClInclude>
     <ClInclude Include="Background.h">
+      <Filter>헤더 파일\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TestHouseActor.h">
+      <Filter>헤더 파일\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGridActor.h">
+      <Filter>헤더 파일\Actors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -42,10 +60,22 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>소스 파일\Actors</Filter>
     </ClCompile>
     <ClCompile Include="Background.cpp">
+      <Filter>소스 파일\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="GameManager.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TestHouseActor.cpp">
+      <Filter>소스 파일\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="TestGridActor.cpp">
+      <Filter>소스 파일\Actors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

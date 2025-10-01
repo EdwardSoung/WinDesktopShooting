@@ -1,28 +1,23 @@
 #pragma once
 #include "framework.h"
+#include "Actor.h"
 
-//음..다른데 선언되어 있다
-extern HWND g_hMainWindow;
-
-class Background
+class Background : public Actor
 {
 public:
 	Background() = delete;
-	Background(IN Gdiplus::Point Size, IN const WCHAR* Path);
-	~Background();
-	void Draw(Gdiplus::Graphics* g_Graphics);
-	void Scroll(Gdiplus::Graphics* g_Graphics, double deltaTime);
+	Background(IN const WCHAR* Path) : Actor(Path)
+	{
+		InitPosition();
+	}
+	virtual ~Background();
+	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
+	virtual void OnTick(double InDelatTime) override;
+	virtual void InitPosition() override;
 
 private:
-	Gdiplus::Bitmap* Image = nullptr;               //플레이어 그릴 종이
-	const int PixelSize = 64;
-	Gdiplus::PointF Position;
-	Gdiplus::Point ScreenSize;
-	//Gdiplus::TextureBrush* Texture;
-
 	bool IsDraw = false;
-
 	double ScrollSpeed = 50.0;
-	double ScrollDeltaY = 0;
+	float Offset = 0.0f;
 };
 

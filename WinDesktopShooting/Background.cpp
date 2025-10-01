@@ -1,53 +1,50 @@
 #include "Background.h"
-
-Background::Background(IN Gdiplus::Point Size, IN const WCHAR* Path)
-{
-    ScreenSize = Size;
-    Image = new Gdiplus::Bitmap(Path);
-    if (Image->GetLastStatus() != Gdiplus::Ok)
-    {
-        //플레이어 이미지 정상 로딩 실패
-        delete Image;
-        Image = nullptr;
-        //MessageBox(hWnd, L"플레이어 이미지 로드 실패", L"Error", MB_OK | MB_ICONERROR);
-    }
-    //Texture = new Gdiplus::TextureBrush(Image);
-}
+#include "GameManager.h"
 
 Background::~Background()
 {
-    delete Image;
-    Image = nullptr;
-
-    delete Texture;
-    Texture = nullptr;
+    if (Image)
+    {
+        delete Image;
+        Image = nullptr;
+    }
 }
 
-void Background::Draw(Gdiplus::Graphics* g_Graphics)
+void Background::OnDraw(Gdiplus::Graphics* InGraphics)
 {    
-    int xCount = ScreenSize.X / PixelSize + 1;
-    int yCount = ScreenSize.Y / PixelSize + 1;
-    //g_Graphics->FillRectangle(Texture, 0, 0, ScreenSize.X, ScreenSize.Y);
-    //Texture->TranslateTransform(0, 0.5f);
-    for (int i = -yCount; i < yCount; i++)
+    if (Image)
     {
-        for (int j = 0; j < xCount; j++)
-        {
-            g_Graphics->DrawImage(Image, j * PixelSize, i * PixelSize + ScrollDeltaY, PixelSize, PixelSize);
+        int newY = static_cast<int>(Position.Y - PixelSize * Pivot.Y + Offset);
+        if (newY > GameManager::GetInstance().ScreenHeight)
+            Offset = -PixelSize;
+    
+        int xCount = GameManager::GetInstance().ScreenWidth / BorderSize() + 1;
+        int yCount = GameManager::GetInstance().ScreenHeight / BorderSize() + 1;
+        int TotalHeight = BorderSize() * yCount;
 
-            //g_Graphics->TranslateTransform(j * PixelSize, i * PixelSize + ScrollDeltaY);
+        for (int i = -1; i < yCount; i++)
+        {
+            for (int j = 0; j < xCount; j++)
+            {
+                InGraphics->DrawImage(Image,
+                    static_cast<int>(Position.X - PixelSize * Pivot.X + BorderSize() * j),
+                    static_cast<int>(newY),
+                    PixelSize, PixelSize);
+            }
+
+            newY += BorderSize();
+            if (newY > TotalHeight)
+                newY -= (TotalHeight + BorderSize());
         }
     }
-    //IsDraw = true;
 }
 
-void Background::Scroll(Gdiplus::Graphics* g_Graphics, double deltaTime)
+void Background::OnTick(double InDelatTime)
 {
-    if (ScrollDeltaY >= (ScreenSize.Y / PixelSize) * PixelSize)
-        ScrollDeltaY = 0;
-    else
-    {
-        ScrollDeltaY += deltaTime * ScrollSpeed;
-    }
-   
+    Offset += 1.0f;
+}
+
+void Background::InitPosition()
+{
+    Position = Gdiplus::PointF(PixelSize * Pivot.X, PixelSize * Pivot.Y);
 }

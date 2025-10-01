@@ -4,8 +4,7 @@
 #include "framework.h"
 #include "WinDesktopShooting.h"
 #include "Enums.h"
-#include "Player.h"
-#include "Background.h"
+#include "GameManager.h"
 
 #include <crtdbg.h>
 #include <unordered_map>
@@ -20,18 +19,6 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
-Gdiplus::Point g_AppPosition(200, 100);
-Gdiplus::Point g_ScreenSize(600, 800);
-
-HWND g_hMainWindow = nullptr;
-
-//화면 깜박임 막기위한 2중 버퍼
-Gdiplus::Bitmap* g_BackBuffer = nullptr;                //빈 종이
-Gdiplus::Graphics* g_BackBufferGraphics = nullptr;      //그릴 도구
-
-double deltaY = 0;
-double MapMoveSpeed = 50.0;
-
 LARGE_INTEGER prevTick, currentTick;
 double frameTime;
 double fps;
@@ -40,8 +27,7 @@ double deltaTime = 0;
 // 윈도우 64bit 시스템을 위한 QueryPerformanceFrequency
 LARGE_INTEGER frequency;
 
-Player* g_Player = nullptr;
-Background* g_Background = nullptr;
+
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -95,10 +81,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // FPS 계산 (초 단위)
         fps = 1000000.0 / frameTime;
         deltaTime = 1.0 / fps;
-
-        //auto dur = Current - Prev;
-        //deltaTime = dur.count() * 0.000000001;
-            
+                    
         //Message Queue가 없어도 한번 확인
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
@@ -111,10 +94,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 DispatchMessage(&msg);
             }
         }
-        InvalidateRect(g_hMainWindow, nullptr, FALSE);
+
+        GameManager::GetInstance().Tick(deltaTime);
+
+        InvalidateRect(GameManager::GetInstance().GetMainWindow(), nullptr, FALSE);
 
         prevTick = currentTick;
-        //Prev = Current;
     }
 
     /*while (GetMessage(&msg, nullptr, 0, 0))
@@ -175,24 +160,27 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    //클라이언트 영역(타이틀 부분 제외) 크기를 원하는 크기로 조절
-   RECT rc = { 0, 0, g_ScreenSize.X, g_ScreenSize.Y };
+   RECT rc = { 0, 0, GameManager::GetInstance().ScreenWidth, GameManager::GetInstance().ScreenHeight };
    //윈도우 스타일에 맞는 rect 가져옴
    AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
        FALSE, 0);
 
-   g_hMainWindow = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
+
+   auto mainWindow = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,      //WS_MAXIMIZEBOX : 최대화 버튼 , WS_THICKFRAME 창 크기조절 선택
-       g_AppPosition.X, g_AppPosition.Y,  //시작 좌표
+       GameManager::GetInstance().GetAppPosition().X, GameManager::GetInstance().GetAppPosition().Y,  //시작 좌표
        rc.right - rc.left, rc.bottom - rc.top,  //윈도우 스타일에 맞춰 재조정된 크기
        nullptr, nullptr, hInstance, nullptr);
 
-   if (!g_hMainWindow)
+   if (!mainWindow)
    {
       return FALSE;
    }
 
-   ShowWindow(g_hMainWindow, nCmdShow);
-   UpdateWindow(g_hMainWindow);
+   GameManager::GetInstance().UpdateWindow(mainWindow);
+
+   ShowWindow(mainWindow, nCmdShow);
+   UpdateWindow(mainWindow);
 
    return TRUE;
 }
@@ -213,16 +201,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         //윈도우가 생성되었을 때
     case WM_CREATE:
-        g_BackBuffer = new Gdiplus::Bitmap(g_ScreenSize.X, g_ScreenSize.Y, PixelFormat32bppARGB);
-        g_BackBufferGraphics = Gdiplus::Graphics::FromImage(g_BackBuffer);
-        if (!g_BackBufferGraphics)
-        {
-            //안만들어졌으면 에러 출력
-            MessageBox(hWnd, L"Back Buffer Graphics Gnenarate failed!", L"Error", MB_OK | MB_ICONERROR);
-        }
-        g_Player = new Player(g_ScreenSize, L"./Images/Airplane01.png");
-        g_Background = new Background(g_ScreenSize, L"./Images/BG.png");
-        
+        GameManager::GetInstance().Initialize();      
+
         break;
     case WM_COMMAND:
         {
@@ -246,42 +226,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            if (g_BackBufferGraphics)
-            {
-                g_BackBufferGraphics->Clear(Gdiplus::Color(255, 0, 0, 0));
-
-                //Gdiplus::SolidBrush OrangeBrush(Gdiplus::Color(255, 165, 100, 0));
-                //for (int i = -g_ScreenSize.Y / 50; i < g_ScreenSize.Y / 50; i++)
-                //{
-                //    for (int j = 0; j < g_ScreenSize.X / 50; j++)
-                //    {                        
-                //        g_BackBufferGraphics->FillRectangle(&OrangeBrush, j * 50, i * 50 + static_cast<int>(deltaY), 3, 3);
-                //    }
-                //}
-
-                if (g_Background)
-                {
-                    g_Background->Draw(g_BackBufferGraphics);
-                    g_Background->Scroll(g_BackBufferGraphics, deltaTime);
-                }
-
-                //deltaY += deltaTime * MapMoveSpeed;
-                //if (deltaY >= g_ScreenSize.Y)
-                //    deltaY = 0;
-
-                if (g_Player)
-                {
-                    g_Player->Draw(g_BackBufferGraphics);
-                    //g_BackBufferGraphics->DrawImage(g_PlayerImage, 100, 100, PlayerImageSize, PlayerImageSize);
-                }
-                else
-                {
-                    Gdiplus::SolidBrush RedBrush(Gdiplus::Color(255, 255, 0, 0));
-                    g_BackBufferGraphics->FillEllipse(&RedBrush, 100, 100, 64, 64);
-                }
-                Gdiplus::Graphics GraphicsInstance(hdc);
-                GraphicsInstance.DrawImage(g_BackBuffer, 0, 0);
-            }
+            GameManager::GetInstance().Draw(hdc);
 
             EndPaint(hWnd, &ps);
         }
@@ -289,11 +234,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //입력 처리
     case WM_KEYDOWN:
     {
-        g_Player->HandleKeyState(wParam, true);
-        InvalidateRect(g_hMainWindow, nullptr, FALSE);
+        GameManager::GetInstance().HandleKeyState(wParam, true);
         switch (wParam)
-        {
-        
+        {        
         case VK_ESCAPE:
             DestroyWindow(hWnd);
         }
@@ -305,20 +248,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //지우지 않고 넘김
         return 1;
     case WM_KEYUP:
-        g_Player->HandleKeyState(wParam, false);
+        GameManager::GetInstance().HandleKeyState(wParam, false);
         break;
     case WM_DESTROY:
-        delete g_Player;
-        g_Player = nullptr;
-
-        delete g_Background;
-        g_Background = nullptr;
-
-        delete g_BackBufferGraphics;
-        g_BackBufferGraphics = nullptr;
-        delete g_BackBuffer;
-        g_BackBuffer = nullptr;
-
         PostQuitMessage(0);
         break;
     default:

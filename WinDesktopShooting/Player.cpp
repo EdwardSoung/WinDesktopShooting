@@ -1,19 +1,5 @@
 #include "Player.h"
-
-Player::Player(IN Gdiplus::Point Size, IN const WCHAR* Path)
-{
-    ScreenSize = Size;
-    Image = new Gdiplus::Bitmap(Path);
-    if (Image->GetLastStatus() != Gdiplus::Ok)
-    {
-        //플레이어 이미지 정상 로딩 실패
-        delete Image;
-        Image = nullptr;
-        //MessageBox(hWnd, L"플레이어 이미지 로드 실패", L"Error", MB_OK | MB_ICONERROR);
-    }
-
-    InitPosition();
-}
+#include "GameManager.h"
 
 Player::~Player()
 {
@@ -30,45 +16,49 @@ void Player::HandleKeyState(IN WPARAM Key, IN bool IsPressed)
     {
         InputDirection Dir = static_cast<InputDirection>(Key);
 
-        if (IsPressed)
-            Move(Dir);
-
-        //if(IsPressed && !KeyWasPressedMap[Dir])
-            //Move(Dir);        
-        //KeyWasPressedMap[Dir] = IsPressed;
+        KeyWasPressedMap[Dir] = IsPressed;
     }
 }
 
-void Player::Draw(Gdiplus::Graphics* g_Graphics)
+void Player::OnDraw(Gdiplus::Graphics* InGraphics)
 {
-    g_Graphics->DrawImage(Image, 
-        static_cast<int>(Position.X - PlayerPixelSize * Pivot.X),
-        static_cast<int>(Position.Y - PlayerPixelSize * Pivot.Y),
-        PlayerPixelSize, PlayerPixelSize);
-}
+    Actor::OnDraw(InGraphics);
 
-void Player::Move(InputDirection InDirection)
-{
-    switch (InDirection)
+    if (!Image)
     {
-    case InputDirection::Left:
-        if (Position.X <= PlayerPixelSize / 2)
-            Position.X = ScreenSize.X - PlayerPixelSize * Pivot.X;
-        else
-            Position.X -= PlayerSpeed;
-      
-        break;
-    case InputDirection::Right:
-        if (Position.X >= ScreenSize.X - PlayerPixelSize * Pivot.X)
-            Position.X = PlayerPixelSize * Pivot.X;
-        else
-            Position.X += PlayerSpeed;
-        break;
+        Gdiplus::SolidBrush RedBrush(Gdiplus::Color(255, 255, 0, 0));
+        InGraphics->FillEllipse(
+            &RedBrush,
+            static_cast<int>(Position.X - PixelSize * Pivot.X),    // 그려질 위치
+            static_cast<int>(Position.Y - PixelSize * Pivot.Y),
+            PixelSize, PixelSize);
     }
 }
+
+void Player::OnTick(double InDeltaTime)
+{
+    float moveDelta = PlayerSpeed * InDeltaTime;
+    if (KeyWasPressedMap[InputDirection::Left])
+    {
+        Position.X -= moveDelta;
+    }
+    
+    if (KeyWasPressedMap[InputDirection::Right])
+    {
+        Position.X += moveDelta;
+    }
+
+    if (Position.X <= PixelSize * Pivot.X)
+        Position.X = GameManager::GetInstance().ScreenWidth - PixelSize * Pivot.X;
+    else if (Position.X >= GameManager::GetInstance().ScreenWidth - PixelSize * Pivot.X)
+        Position.X = PixelSize * Pivot.X;
+
+}
+
+
 
 void Player::InitPosition()
 {
-    Position.X = ScreenSize.X / 2;
-    Position.Y = 700;// ScreenSize.Y - PlayerPixelSize;
+    Position.X = GameManager::GetInstance().ScreenWidth * Pivot.X;
+    Position.Y = GameManager::GetInstance().ScreenHeight - PixelSize;
 }
