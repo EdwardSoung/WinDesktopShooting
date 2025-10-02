@@ -1,6 +1,6 @@
 #include "TestHouseActor.h"
 
-TestHouseActor::TestHouseActor(RenderLayer InLayer) : Actor(InLayer)
+TestHouseActor::TestHouseActor(ResourceType InType) : Actor(InType)
 {
 
 }

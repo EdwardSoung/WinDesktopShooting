@@ -6,7 +6,7 @@ constexpr int HouseVerticesCount = 7;
 class TestHouseActor : public Actor
 {
 public:
-	TestHouseActor(RenderLayer InLayer);
+	TestHouseActor(ResourceType InType);
 	virtual ~TestHouseActor();
 
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;

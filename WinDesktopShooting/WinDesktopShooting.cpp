@@ -7,6 +7,8 @@
 #include "GameManager.h"
 #include "ResourceManager.h"
 #include "Singleton.h"
+#include "TestCollisionActor.h"
+#include "Factory.h"
 
 #include <crtdbg.h>
 #include <unordered_map>
@@ -21,13 +23,16 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
-LARGE_INTEGER prevTick, currentTick;
-double frameTime;
-double fps;
-double deltaTime = 0;
+//LARGE_INTEGER prevTick, currentTick;
+//double frameTime;
+//double fps;
+//double deltaTime = 0;
+
+float Frame;
+float FPS;
 
 // 윈도우 64bit 시스템을 위한 QueryPerformanceFrequency
-LARGE_INTEGER frequency;
+//LARGE_INTEGER frequency;
 
 
 
@@ -53,8 +58,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Gdiplus::GdiplusStartupInput StartupInput;
     Gdiplus::GdiplusStartup(&Token, &StartupInput, nullptr);
 
-    Singleton<ResourceManager>::Instance().GenerateResources();
-    Singleton<GameManager>::Instance().Initialize();
+    ResourceManager::Instance().GenerateResources();
+    GameManager::Instance().Initialize();
+
+ /*   auto Test1 = Factory::Instance().SpawnActor<TestCollisionActor>(ResourceType::Test, RenderLayer::Test);
+    Test1->UpdatePosition(100, 100);
+    auto Test2 = Factory::Instance().SpawnActor<TestCollisionActor>(ResourceType::Test, RenderLayer::Test);
+    Test2->UpdatePosition(150, 150);
+
+    Test1->PrintTestResult(Test2);*/
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -71,21 +83,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    QueryPerformanceFrequency(&frequency); // 타이머 주파수 얻기
-
+    //QueryPerformanceFrequency(&frequency); // 타이머 주파수 얻기
+    ULONGLONG LastTime = GetTickCount64();
     // 기본 메시지 루프입니다:                                                                                3. 메시지 루프
-    //std::chrono::steady_clock::time_point Prev = std::chrono::steady_clock::now();
     while (true)
     {
         //auto Current = std::chrono::steady_clock::now();
-        QueryPerformanceCounter(&currentTick); // 현재 시간 가져오기
+        //(&currentTick); // 현재 시간 가져오기
 
         // 프레임 시간 계산 (마이크로초 단위)
-        frameTime = (currentTick.QuadPart - prevTick.QuadPart) * 1000000.0 / frequency.QuadPart;
+        //frameTime = (currentTick.QuadPart - prevTick.QuadPart) * 1000000.0 / frequency.QuadPart;
+
 
         // FPS 계산 (초 단위)
-        fps = 1000000.0 / frameTime;
-        deltaTime = 1.0 / fps;
+        //fps = 1000000.0 / frameTime;
+        //deltaTime = 1.0 / fps;
                     
         //Message Queue가 없어도 한번 확인
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -100,11 +112,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             }
         }
 
-        Singleton<GameManager>::Instance().Tick(deltaTime);
+        ULONGLONG CurrentTime = GetTickCount64();
+        float DeltaTime = (CurrentTime - LastTime) / 1000.0f;   // 결과를 초 단위로 변경
+        LastTime = CurrentTime;
+        GameManager::Instance().Tick(DeltaTime);
 
-        InvalidateRect(Singleton<GameManager>::Instance().GetMainWindow(), nullptr, FALSE);
+        InvalidateRect(GameManager::Instance().GetMainWindow(), nullptr, FALSE);
 
-        prevTick = currentTick;
+        //Prev = Current;
+        //prevTick = currentTick;
     }
 
     /*while (GetMessage(&msg, nullptr, 0, 0))
@@ -116,6 +132,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }*/
 
+    GameManager::Instance().OnDestroy();
+    ResourceManager::Instance().OnDestroy();
     //Gdiplus 정리
     Gdiplus::GdiplusShutdown(Token);
 
@@ -165,14 +183,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    //클라이언트 영역(타이틀 부분 제외) 크기를 원하는 크기로 조절
-   RECT rc = { 0, 0, Singleton<GameManager>::Instance().ScreenWidth, Singleton<GameManager>::Instance().ScreenHeight };
+   RECT rc = { 0, 0, GameManager::Instance().ScreenWidth, GameManager::Instance().ScreenHeight };
    //윈도우 스타일에 맞는 rect 가져옴
    AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
        FALSE, 0);
 
    auto mainWindow = CreateWindowW(szWindowClass, L"2D Shooting for GDI+"/*szTitle*/,
        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,      //WS_MAXIMIZEBOX : 최대화 버튼 , WS_THICKFRAME 창 크기조절 선택
-       Singleton<GameManager>::Instance().GetAppPosition().X, Singleton<GameManager>::Instance().GetAppPosition().Y,  //시작 좌표
+       GameManager::Instance().GetAppPosition().X, GameManager::Instance().GetAppPosition().Y,  //시작 좌표
        rc.right - rc.left, rc.bottom - rc.top,  //윈도우 스타일에 맞춰 재조정된 크기
        nullptr, nullptr, hInstance, nullptr);
 
@@ -181,7 +199,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   Singleton<GameManager>::Instance().UpdateWindow(mainWindow);
+   GameManager::Instance().UpdateWindow(mainWindow);
 
    ShowWindow(mainWindow, nCmdShow);
    UpdateWindow(mainWindow);
@@ -230,7 +248,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            Singleton<GameManager>::Instance().Draw(hdc);
+            GameManager::Instance().Draw(hdc);
 
             EndPaint(hWnd, &ps);
         }
@@ -238,7 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //입력 처리
     case WM_KEYDOWN:
     {
-        Singleton<GameManager>::Instance().HandleKeyState(wParam, true);
+        GameManager::Instance().HandleKeyState(wParam, true);
         switch (wParam)
         {        
         case VK_ESCAPE:
@@ -252,7 +270,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //지우지 않고 넘김
         return 1;
     case WM_KEYUP:
-        Singleton<GameManager>::Instance().HandleKeyState(wParam, false);
+        GameManager::Instance().HandleKeyState(wParam, false);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);

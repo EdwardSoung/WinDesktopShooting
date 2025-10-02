@@ -5,7 +5,7 @@
 class TestGridActor : public Actor
 {
 public:
-	TestGridActor(RenderLayer InLayer);
+	TestGridActor(ResourceType InType);
 	virtual ~TestGridActor();
 
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;

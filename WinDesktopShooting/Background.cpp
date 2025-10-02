@@ -2,21 +2,23 @@
 #include "GameManager.h"
 #include "ResourceManager.h"
 
-Background::~Background()
+Background::Background(ResourceType InType) : Actor(InType)
 {
+    Pivot.X = 0;    // ¿ÞÂÊ À§°¡ ÇÇº¿
+    Pivot.Y = 0;
 }
 
 void Background::OnDraw(Gdiplus::Graphics* InGraphics)
 {
-    auto Image = Singleton<ResourceManager>::Instance().GetResource(ImageType);
+    auto Image = ResourceManager::Instance().GetResource(ImageType);
     if (Image)
     {
         int newY = static_cast<int>(Position.Y - PixelSize * Pivot.Y + Offset);
-        if (Offset > Singleton<GameManager>::Instance().ScreenHeight)
+        if (Offset > GameManager::Instance().ScreenHeight)
             Offset = -PixelSize;
     
-        int xCount = Singleton<GameManager>::Instance().ScreenWidth / BorderSize() + 1;
-        int yCount = Singleton<GameManager>::Instance().ScreenHeight / BorderSize() + 1;
+        int xCount = GameManager::Instance().ScreenWidth / BorderSize() + 1;
+        int yCount = GameManager::Instance().ScreenHeight / BorderSize() + 1;
         int TotalHeight = BorderSize() * yCount;
 
         for (int i = -1; i < yCount; i++)
@@ -39,9 +41,4 @@ void Background::OnDraw(Gdiplus::Graphics* InGraphics)
 void Background::OnTick(double InDelatTime)
 {
     Offset += 1.0f;
-}
-
-void Background::InitPosition()
-{
-    Position = Gdiplus::PointF(PixelSize * Pivot.X, PixelSize * Pivot.Y);
 }

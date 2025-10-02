@@ -8,16 +8,16 @@ class Player : public Actor
 {
 public:
 	Player() = delete;
-	Player(RenderLayer InLayer) : Actor(InLayer, ResourceType::Player)
+	Player(ResourceType InType) : Actor(InType)
 	{
-		InitPosition();
 	}
 	virtual ~Player();
 
 	void HandleKeyState(IN WPARAM Key, IN bool IsPressed);
+	virtual void OnInitialize() override;
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
 	virtual void OnTick(double InDeltaTime) override;
-	virtual void InitPosition() override;
+	virtual void OnOverlap(Actor* InOther) override;
 
 private:
 	std::unordered_map<InputDirection, bool> KeyWasPressedMap;
