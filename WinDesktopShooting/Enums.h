@@ -39,6 +39,9 @@ enum class ResourceType : uint8_t
 	Number9,
 	Dot,
 	Test,
+	Shield3,
+	Shield2,
+	Shield1,
 };
 
 enum class CollisionType

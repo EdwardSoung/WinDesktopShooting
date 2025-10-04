@@ -10,7 +10,7 @@ public:
 
 	virtual void OnInitialize() {};
 	virtual void OnDestroy() {};
-	virtual void OnTick(double InDeltaTime) {}
+	virtual void OnTick(float InDeltaTime) {}
 
 	inline  Actor* GetOwner() const { return Owner; }
 protected:

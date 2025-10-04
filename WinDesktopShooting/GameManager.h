@@ -38,8 +38,10 @@ public:
 	{
 		return MainWindow;
 	}
+
+	inline Gdiplus::PointF GetPlayerPosition() { return MainPlayer->GetPosition(); }
 	inline Gdiplus::Point GetAppPosition() { return AppPosition; }
-	inline void RequestDestroy(Actor* DestroyTarget) { PendingDestroyActors.insert(DestroyTarget); };
+	inline void RequestDestroy(Actor* DestroyTarget) { PendingDestroyActors.insert(DestroyTarget); }
 	inline void SetGameState(GameState InState) { State = InState; }
 
 private:
@@ -70,3 +72,4 @@ private:
 
 	GameState State = GameState::Playing;
 };
+ 

@@ -24,7 +24,7 @@ void TimerUI::OnInitialize()
 	dotImage = ResourceManager::Instance().GetResource(ResourceType::Dot); // 소수점 이미지 로드
 }
 
-void TimerUI::OnTick(double deltaTime)
+void TimerUI::OnTick(float deltaTime)
 {
 	Actor::OnTick(deltaTime);
 	elapsedTime += deltaTime; // 경과 시간 업데이트

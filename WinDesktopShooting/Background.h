@@ -11,7 +11,7 @@ public:
 	Background(ResourceType InType);
 
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
-	virtual void OnTick(double InDelatTime) override;
+	virtual void OnTick(float InDelatTime) override;
 
 private:
 	bool IsDraw = false;

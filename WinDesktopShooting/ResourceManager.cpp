@@ -21,6 +21,9 @@ void ResourceManager::GenerateResources()
     AddResource(ResourceType::Number8, L"./Images/Number8.png");
     AddResource(ResourceType::Number9, L"./Images/Number9.png");
     AddResource(ResourceType::Test, L"./Images/Test.png");
+    AddResource(ResourceType::Shield3, L"./Images/Shield3.png");
+    AddResource(ResourceType::Shield2, L"./Images/Shield2.png");
+    AddResource(ResourceType::Shield1, L"./Images/Shield1.png");
 }
 
 void ResourceManager::OnDestroy()

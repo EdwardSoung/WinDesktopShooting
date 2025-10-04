@@ -3,6 +3,7 @@
 #include "TestGridActor.h"
 #include "BombSpawner.h"
 #include "PhysicsComponent.h"
+#include "Shield.h"
 
 #include<algorithm>
 
@@ -19,9 +20,10 @@ void GameManager::Initialize()
     MainPlayer = Factory::Instance().SpawnActor<Player>(ResourceType::Player, RenderLayer::Player);
 
     Factory::Instance().SpawnActor<Background>(ResourceType::Background, RenderLayer::Background);
-    TestGrid = Factory::Instance().SpawnActor<TestGridActor>(ResourceType::Test, RenderLayer::Test);
+    //TestGrid = Factory::Instance().SpawnActor<TestGridActor>(ResourceType::Test, RenderLayer::Test);
     Spawner = Factory::Instance().SpawnActor<BombSpawner>(ResourceType::None);
     Timer = Factory::Instance().SpawnActor<TimerUI>(ResourceType::None, RenderLayer::UI);
+    Factory::Instance().SpawnActor<Shield>(ResourceType::Shield3, RenderLayer::Player);
 }
 
 void GameManager::OnDestroy()

@@ -8,13 +8,13 @@ public:
 	Bomb(ResourceType InType) : Actor(InType) {};
 
 	virtual void OnInitialize() override;
-	virtual void OnTick(double deltaTime) override;
+	virtual void OnTick(float deltaTime) override;
 
 	virtual void OnOverlap(Actor* other) override;
 
 	// Getters
 	// Setters
-	void SetDropAcceleration(float newAcceleration) { dropAcceleration = newAcceleration; }
+	//void SetDropAcceleration(float newAcceleration) { dropAcceleration = newAcceleration; }
 
 private:
 	float dropAcceleration = 200.0f; // 드랍 가속도(초당 픽셀 단위)

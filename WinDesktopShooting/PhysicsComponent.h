@@ -9,7 +9,7 @@ public:
 	{
 	}
 
-	virtual void OnTick(double InDeltaTime) override;
+	virtual void OnTick(float InDeltaTime) override;
 
 	bool IsCollision(PhysicsComponent* InOther) const;
 

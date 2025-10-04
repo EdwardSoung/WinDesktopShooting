@@ -2,7 +2,6 @@
 #include "GameManager.h"
 #include "PhysicsComponent.h"
 
-
 void Bomb::OnInitialize()
 {
 	dropSpeed = 0.0f; // 초기 드랍 속도 설정
@@ -13,9 +12,6 @@ void Bomb::OnInitialize()
 	Position.X = static_cast<float>(HalfSize + rand() % (GameManager::ScreenWidth - Size)); // 랜덤 X 위치 설정
 	Position.Y = static_cast<float>(-Size); // 화면 위쪽에서 시작
 
-	//std::string debugMessage = "Bomb::position.X : " + std::to_string(position.X) + "\n";
-	//OutputDebugStringA(debugMessage.c_str());
-
 	Angle = 180.0f;	// 회전 설정
 
 	PhysicsComponent* physicsComponent = new PhysicsComponent(this, CollisionType::Rectangle, PhysicsLayer::Bomb);
@@ -24,13 +20,14 @@ void Bomb::OnInitialize()
 	AddComponent(physicsComponent); // 물리 컴포넌트 추가
 }
 
-void Bomb::OnTick(double deltaTime)
+//중력가속도..?
+float m = 10;
+float g = 9.81f;
+void Bomb::OnTick(float deltaTime)
 {
 	Actor::OnTick(deltaTime); // 부모 클래스의 OnTick 호출
 
-	dropSpeed += dropAcceleration * deltaTime; // 드랍 속도 업데이트
-	//std::string debugMessage = "Bomb::OnTick called with deltaTime: " + std::to_string(dropSpeed) + "\n";
-	//OutputDebugStringA(debugMessage.c_str());
+	dropSpeed += m * g * deltaTime; // 드랍 속도 업데이트
 
 	Position.Y += dropSpeed * deltaTime; // Y 위치 업데이트
 

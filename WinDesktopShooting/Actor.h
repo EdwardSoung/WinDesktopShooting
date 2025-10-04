@@ -15,7 +15,7 @@ public:
 	virtual void OnInitialize() {};
 	virtual void OnDestroy() {};
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics);
-	virtual void OnTick(double InDeltaTime) {}
+	virtual void OnTick(float InDeltaTime) {}
 
 	virtual void OnOverlap(Actor* InOther) {};	//다른 액터와 겹쳤을 때 자동으로 호출되는 함수...
 

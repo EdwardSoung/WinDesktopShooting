@@ -1,7 +1,7 @@
 #include "PhysicsComponent.h"
 #include "Actor.h"
 
-void PhysicsComponent::OnTick(double InDeltaTime)
+void PhysicsComponent::OnTick(float InDeltaTime)
 {
 }
 

@@ -28,6 +28,7 @@ void Player::OnInitialize()
     PhysicsComponent* physicsComponent = new PhysicsComponent(this, CollisionType::Circle, PhysicsLayer::Player);
     physicsComponent->SetRadius(static_cast<float>(Size * 0.5f)); // 반지름 설정
     AddComponent(physicsComponent); // 물리 컴포넌트 추가
+        
 }
 
 void Player::OnDraw(Gdiplus::Graphics* InGraphics)
@@ -45,7 +46,7 @@ void Player::OnDraw(Gdiplus::Graphics* InGraphics)
     }
 }
 
-void Player::OnTick(double InDeltaTime)
+void Player::OnTick(float InDeltaTime)
 {
     float moveDelta = PlayerSpeed * InDeltaTime;
     if (KeyWasPressedMap[InputDirection::Left])

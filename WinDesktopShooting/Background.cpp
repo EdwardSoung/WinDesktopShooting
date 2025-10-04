@@ -38,7 +38,7 @@ void Background::OnDraw(Gdiplus::Graphics* InGraphics)
     }
 }
 
-void Background::OnTick(double InDelatTime)
+void Background::OnTick(float InDelatTime)
 {
     Offset += 1.0f;
 }

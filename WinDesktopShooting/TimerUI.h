@@ -8,7 +8,7 @@ public:
 	TimerUI(ResourceType InType) : UserInterface(InType) {};
 
 	virtual void OnInitialize() override;
-	virtual void OnTick(double deltaTime) override;
+	virtual void OnTick(float deltaTime) override;
 	virtual void OnDraw(Gdiplus::Graphics* graphics) override;
 
 private:
