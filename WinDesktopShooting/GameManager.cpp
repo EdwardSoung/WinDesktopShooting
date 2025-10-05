@@ -75,8 +75,9 @@ void GameManager::Tick(float InDeltaTime)
     {
         RequestDestroy(Spawner);
         RequestDestroy(MainPlayer);
+        MainPlayer = nullptr;
         RequestDestroy(Timer);
-        Factory::Instance().SpawnActor<LobbyUI>(ResourceType::None, RenderLayer::UI);
+        Lobby = Factory::Instance().SpawnActor<LobbyUI>(ResourceType::None, RenderLayer::UI);
         SetGameState(GameState::Lobby);
     }
 
@@ -116,7 +117,11 @@ void GameManager::Draw(HDC InHdc)
 
 void GameManager::HandleKeyState(WPARAM InKey, bool InIsPressed)
 {
-    MainPlayer->HandleKeyState(InKey, InIsPressed);
+    if(MainPlayer)
+        MainPlayer->HandleKeyState(InKey, InIsPressed);
+    
+    if (Lobby)
+        Lobby->HandleKeyState(InKey, InIsPressed);
 
     if (TestGrid)
     {
@@ -136,6 +141,11 @@ void GameManager::RegistActor(RenderLayer InLayer, Actor* InActor)
             PhysicsComponents[physicsComponent->GetLayer()].push_back(physicsComponent);
         }
     }
+}
+
+void GameManager::SelectLobby(LobbyMenuType InMenu)
+{
+    LobbyMenuType menu = InMenu;
 }
 
 void GameManager::ProcessPendingDestroyAtors()

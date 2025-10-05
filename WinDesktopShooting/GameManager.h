@@ -28,6 +28,7 @@ public:
 	void Draw(HDC InHdc);
 	void HandleKeyState(WPARAM InKey, bool InIsPressed);
 	void RegistActor(RenderLayer InLayer, Actor* InActor);
+	void SelectLobby(LobbyMenuType InMenu);
 
 	static constexpr unsigned int ScreenWidth = 600;
 	static constexpr unsigned int ScreenHeight = 800;
@@ -72,7 +73,7 @@ private:
 	BombSpawner* Spawner = nullptr;
 	TimerUI* Timer = nullptr;
 	Background* BG = nullptr;
-	
+	LobbyUI* Lobby = nullptr;
 
 	GameState State = GameState::Playing;
 };

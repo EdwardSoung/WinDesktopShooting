@@ -67,3 +67,10 @@ enum class GameState
 	Playing,
 	GameOver,
 };
+
+enum class LobbyMenuType
+{
+	Start = 1,
+	Record,
+	Exit
+};
