@@ -8,8 +8,8 @@ public:
 	Bomb(ResourceType InType) : Actor(InType) {};
 
 	virtual void OnInitialize() override;
-	virtual void OnTick(float deltaTime) override;
 
+	virtual void OnTick(float deltaTime) override;
 	virtual void OnOverlap(Actor* other) override;
 
 	// Getters
@@ -20,5 +20,10 @@ private:
 	float dropAcceleration = 200.0f; // 드랍 가속도(초당 픽셀 단위)
 	float dropSpeed = 0.0f; // 현재 드랍 속도
 	float lifetime = 5.0f; // 폭탄의 수명(초 단위)
+
+	float Mass = 1.0f;
+	float g = 9.81f;
+
+	int GetMetorSize();
 };
 

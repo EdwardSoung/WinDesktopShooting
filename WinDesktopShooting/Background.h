@@ -1,6 +1,7 @@
 #pragma once
 #include "framework.h"
 #include "Actor.h"
+#include <vector>
 
 //음...라인(가로)만 그리고
 //라인들을 아래 끝 도착하면 위에 그려주면 안될지..?
@@ -10,12 +11,13 @@ public:
 	Background() = delete;
 	Background(ResourceType InType);
 
+	virtual void OnInitialize() override;
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
 	virtual void OnTick(float InDelatTime) override;
 
 private:
-	bool IsDraw = false;
-	double ScrollSpeed = 50.0;
-	float Offset = 0.0f;
+	int XCount = 0;
+	int YCount = 0;
+	std::vector<int> YPositions;
 };
 

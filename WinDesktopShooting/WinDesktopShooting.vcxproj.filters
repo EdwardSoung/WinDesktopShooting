@@ -99,6 +99,9 @@
     <ClInclude Include="Shield.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="LobbyUI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinDesktopShooting.cpp">
@@ -150,6 +153,9 @@
       <Filter>소스 파일\Actors</Filter>
     </ClCompile>
     <ClCompile Include="Shield.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyUI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

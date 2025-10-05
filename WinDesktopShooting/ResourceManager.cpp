@@ -8,7 +8,11 @@ void ResourceManager::GenerateResources()
 {
     AddResource(ResourceType::Player, L"./Images/Airplane01.png");
     AddResource(ResourceType::Background, L"./Images/BG.png");
-    AddResource(ResourceType::Bomb, L"./Images/Bomb.png");
+    AddResource(ResourceType::Meteor1, L"./Images/Meteor1.png");
+    AddResource(ResourceType::Meteor2, L"./Images/Meteor2.png");
+    AddResource(ResourceType::Meteor3, L"./Images/Meteor3.png");
+    AddResource(ResourceType::Meteor4, L"./Images/Meteor4.png");
+    AddResource(ResourceType::Meteor5, L"./Images/Meteor5.png");
     AddResource(ResourceType::Dot, L"./Images/Dot.png");
     AddResource(ResourceType::Number0, L"./Images/Number0.png");
     AddResource(ResourceType::Number1, L"./Images/Number1.png");

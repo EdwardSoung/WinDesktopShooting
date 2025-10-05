@@ -15,7 +15,7 @@ enum class RenderLayer : uint8_t
 {
 	Background = 0,
 	Player,
-	Bomb,
+	Meteor,
 	UI,
 	Test,
 	Misc
@@ -25,7 +25,11 @@ enum class ResourceType : uint8_t
 {
 	None,
 	Player,
-	Bomb,
+	Meteor1,	
+	Meteor2,	
+	Meteor3,	
+	Meteor4,	
+	Meteor5,	
 	Background,
 	Number0,
 	Number1,
@@ -59,6 +63,7 @@ enum class PhysicsLayer
 
 enum class GameState
 {
+	Lobby,
 	Playing,
 	GameOver,
 };

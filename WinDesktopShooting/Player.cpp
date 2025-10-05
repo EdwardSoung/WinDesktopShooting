@@ -18,6 +18,7 @@ void Player::HandleKeyState(IN WPARAM Key, IN bool IsPressed)
 
 void Player::OnInitialize()
 {
+    PixelSize = 64;
     Position.X = 300.0f;
     Position.Y = 700.0f;
     KeyWasPressedMap[InputDirection::Up] = false;

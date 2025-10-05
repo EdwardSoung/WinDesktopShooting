@@ -11,6 +11,8 @@
 #include "PhysicsComponent.h"
 #include "BombSpawner.h"
 #include "TimerUI.h"
+#include "Shield.h"
+#include "LobbyUI.h"
 
 class GameManager : public Singleton<GameManager>
 {
@@ -69,6 +71,8 @@ private:
 
 	BombSpawner* Spawner = nullptr;
 	TimerUI* Timer = nullptr;
+	Background* BG = nullptr;
+	
 
 	GameState State = GameState::Playing;
 };

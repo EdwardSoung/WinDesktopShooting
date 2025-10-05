@@ -1,33 +1,35 @@
 #include "Bomb.h"
 #include "GameManager.h"
+#include "ResourceManager.h"
 #include "PhysicsComponent.h"
 
 void Bomb::OnInitialize()
 {
 	dropSpeed = 0.0f; // 초기 드랍 속도 설정
 
-	SetSize(GameManager::ActorDefaultSize / 2); // 크기 설정
+	Image = ResourceManager::Instance().GetResource(ImageType);
+	//사이즈를 결정...
+
+	Mass = GetMetorSize();
+	SetSize(Mass); // 크기 설정
 
 	float HalfSize = Size * 0.5f;
 	Position.X = static_cast<float>(HalfSize + rand() % (GameManager::ScreenWidth - Size)); // 랜덤 X 위치 설정
 	Position.Y = static_cast<float>(-Size); // 화면 위쪽에서 시작
 
-	Angle = 180.0f;	// 회전 설정
+	//Angle = 180.0f;	// 회전 설정
 
-	PhysicsComponent* physicsComponent = new PhysicsComponent(this, CollisionType::Rectangle, PhysicsLayer::Bomb);
-	physicsComponent->SetWidth(static_cast<float>(HalfSize));
-	physicsComponent->SetHeight(HalfSize * 0.75f);
+	PhysicsComponent* physicsComponent = new PhysicsComponent(this, CollisionType::Circle, PhysicsLayer::Bomb);
+	physicsComponent->SetRadius(HalfSize);
 	AddComponent(physicsComponent); // 물리 컴포넌트 추가
 }
 
-//중력가속도..?
-float m = 10;
-float g = 9.81f;
 void Bomb::OnTick(float deltaTime)
 {
-	Actor::OnTick(deltaTime); // 부모 클래스의 OnTick 호출
+	//계속 회전
+	Angle += 1.0f;
 
-	dropSpeed += m * g * deltaTime; // 드랍 속도 업데이트
+	dropSpeed += (Mass * 0.5f) * g * deltaTime; // 드랍 속도 업데이트
 
 	Position.Y += dropSpeed * deltaTime; // Y 위치 업데이트
 
@@ -46,10 +48,28 @@ void Bomb::OnOverlap(Actor* other)
 	{
 		// 폭탄과 다른 액터가 겹칠 때 처리
 		// 예: 폭탄이 플레이어와 겹치면 플레이어에게 피해를 주거나 게임 오버 처리
-		OutputDebugString(L"Bomb::OnOverlap called\n");
+ 		OutputDebugString(L"Bomb::OnOverlap called\n");
 
 		// 폭탄 삭제
 		DestroyActor();
 	}
+}
+
+int Bomb::GetMetorSize()
+{
+	switch(ImageType)
+	{
+	case ResourceType::Meteor1:
+		return 15;
+	case ResourceType::Meteor2:
+		return 18;
+	case ResourceType::Meteor3:
+		return 28;
+	case ResourceType::Meteor4:
+		return 43;
+	case ResourceType::Meteor5:
+		return 96;
+	}
+	return 0;
 }
 

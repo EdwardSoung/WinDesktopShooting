@@ -8,7 +8,6 @@ class Shield :
 	Shield(ResourceType InType) : Actor(InType)
 	{
 	}
-	virtual ~Shield();
 
 	virtual void OnInitialize() override;
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
@@ -16,7 +15,6 @@ class Shield :
 	virtual void OnOverlap(Actor* InOther) override;
 
 private:
-	Gdiplus::Pen* ShieldPen;
 	int ShieldCount = 3;
 
 };

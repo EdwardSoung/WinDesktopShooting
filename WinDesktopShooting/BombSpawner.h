@@ -17,5 +17,7 @@ private:
 	bool hasInitialDelayPassed = false;	// 초기 지연 시간이 지났는지 여부
 	float timeSinceLastSpawn = 0.0f;	// 마지막 폭탄 생성 이후 경과 시간
 	float TotalPlayTimer = 0.0f;
+
+	ResourceType GetMeteor();
 };
 

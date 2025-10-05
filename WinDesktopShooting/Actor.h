@@ -72,7 +72,7 @@ public:
 	inline void SetRenderLayer(RenderLayer InLayer) { Layer = InLayer; }
 
 protected:
-	const int PixelSize = 64;
+	int PixelSize = 64;
 	Gdiplus::PointF Pivot = { 0.5f, 0.5f };
 	Gdiplus::PointF Position;
 	ResourceType ImageType = ResourceType::None;

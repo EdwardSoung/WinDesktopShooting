@@ -16,14 +16,23 @@ void GameManager::Initialize()
 		//안만들어졌으면 에러 출력
 		MessageBox(MainWindow, L"Back Buffer Graphics Gnenarate failed!", L"Error", MB_OK | MB_ICONERROR);
 	}
+    
+    //우선은 아예 시작화면...
+    //Start
+    //Record(1~3)? -> 저장은 음..우선 끄면 하지말고
+    //Exit
+
+    //키 입력..
+    //음...받아서 다시 그려주고 해야하는데..메뉴가 문제네
+    //텍스트도 이미지인데... 
 
     MainPlayer = Factory::Instance().SpawnActor<Player>(ResourceType::Player, RenderLayer::Player);
 
-    Factory::Instance().SpawnActor<Background>(ResourceType::Background, RenderLayer::Background);
+    BG = Factory::Instance().SpawnActor<Background>(ResourceType::Background, RenderLayer::Background);
     //TestGrid = Factory::Instance().SpawnActor<TestGridActor>(ResourceType::Test, RenderLayer::Test);
     Spawner = Factory::Instance().SpawnActor<BombSpawner>(ResourceType::None);
     Timer = Factory::Instance().SpawnActor<TimerUI>(ResourceType::None, RenderLayer::UI);
-    Factory::Instance().SpawnActor<Shield>(ResourceType::Shield3, RenderLayer::Player);
+    //Factory::Instance().SpawnActor<Shield>(ResourceType::Shield3, RenderLayer::Player);
 }
 
 void GameManager::OnDestroy()
@@ -41,21 +50,48 @@ void GameManager::OnDestroy()
     delete BackBuffer;
     BackBuffer = nullptr;
 
+    BG = nullptr;
     Spawner = nullptr;
     MainPlayer = nullptr;
 }
 
 void GameManager::Tick(float InDeltaTime)
 {
-    for (auto ActorData : Actors)
+    if (State == GameState::Playing)
     {
-        for (auto actor : ActorData.second)
+        for (auto ActorData : Actors)
         {
-            actor->OnTick(InDeltaTime);
+            for (auto actor : ActorData.second)
+            {
+                actor->OnTick(InDeltaTime);
+            }
         }
+
+        ProcessCollisions();
+        ProcessPendingDestroyAtors();
     }
-    ProcessCollisions();
-    ProcessPendingDestroyAtors();
+    
+    if (State == GameState::GameOver)
+    {
+        RequestDestroy(Spawner);
+        RequestDestroy(MainPlayer);
+        RequestDestroy(Timer);
+        Factory::Instance().SpawnActor<LobbyUI>(ResourceType::None, RenderLayer::UI);
+        SetGameState(GameState::Lobby);
+    }
+
+    if (State == GameState::Lobby)
+    {
+        for (auto ActorData : Actors)
+        {
+            for (auto actor : ActorData.second)
+            {
+                actor->OnTick(InDeltaTime);
+            }
+        }
+
+        ProcessPendingDestroyAtors();
+    }
 }
 
 void GameManager::Draw(HDC InHdc)

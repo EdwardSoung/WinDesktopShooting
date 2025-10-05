@@ -16,12 +16,12 @@ public:
 	void HandleKeyState(IN WPARAM Key, IN bool IsPressed);
 	virtual void OnInitialize() override;
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
-	virtual void OnTick(double InDeltaTime) override;
+	virtual void OnTick(float InDeltaTime) override;
 	virtual void OnOverlap(Actor* InOther) override;
 
 private:
 	std::unordered_map<InputDirection, bool> KeyWasPressedMap;
-	float PlayerSpeed = 100.0f;
+	float PlayerSpeed = 150.0f;
 
 };
 

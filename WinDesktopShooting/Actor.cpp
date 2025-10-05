@@ -26,7 +26,7 @@ void Actor::OnDraw(Gdiplus::Graphics* InGraphics)
     //원위치
     InGraphics->TranslateTransform(-Position.X, -Position.Y);
     
-    // Image가 로딩되어 있다.
+    // Image가 로딩되어 있다.    
     InGraphics->DrawImage(
         Image,          // 그려질 이미지
         static_cast<int>(Position.X - Size * Pivot.X),    // 그려질 위치

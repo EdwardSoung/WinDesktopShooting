@@ -43,7 +43,7 @@ bool PhysicsComponent::CheckCircleToCircleCollision(const PhysicsComponent* InFr
 	const Gdiplus::PointF& From = InFrom->GetOwner()->GetPosition();
 	const Gdiplus::PointF& To = InTo->GetOwner()->GetPosition();
 
-	float dx = To.X - From.Y;
+	float dx = To.X - From.X;
 	float dy = To.Y - From.Y;
 	float squaredDistance = dx * dx + dy * dy;
 
