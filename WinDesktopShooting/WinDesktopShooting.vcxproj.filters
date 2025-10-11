@@ -31,6 +31,12 @@
     <Filter Include="헤더 파일\Test">
       <UniqueIdentifier>{d1c27919-a3f9-4311-9d1b-6485c76cc9c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\UI">
+      <UniqueIdentifier>{08dd7310-534c-4c26-b198-b7f713f2c40b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\UI">
+      <UniqueIdentifier>{5ecacb2f-3222-4f1d-9bb1-643e1ddeeada}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -87,12 +93,6 @@
     <ClInclude Include="BombSpawner.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UserInterface.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TimerUI.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Bomb.h">
       <Filter>헤더 파일\Actors</Filter>
     </ClInclude>
@@ -100,6 +100,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="LobbyUI.h">
+      <Filter>헤더 파일\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerUI.h">
+      <Filter>헤더 파일\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UserInterface.h">
+      <Filter>헤더 파일\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -143,12 +152,6 @@
     <ClCompile Include="BombSpawner.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UserInterface.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TimerUI.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Bomb.cpp">
       <Filter>소스 파일\Actors</Filter>
     </ClCompile>
@@ -156,6 +159,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LobbyUI.cpp">
+      <Filter>소스 파일\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerUI.cpp">
+      <Filter>소스 파일\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UserInterface.cpp">
+      <Filter>소스 파일\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordUI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

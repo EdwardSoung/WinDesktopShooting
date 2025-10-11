@@ -13,6 +13,7 @@
 #include "TimerUI.h"
 #include "Shield.h"
 #include "LobbyUI.h"
+#include "RecordUI.h"
 
 class GameManager : public Singleton<GameManager>
 {
@@ -29,6 +30,7 @@ public:
 	void HandleKeyState(WPARAM InKey, bool InIsPressed);
 	void RegistActor(RenderLayer InLayer, Actor* InActor);
 	void SelectLobby(LobbyMenuType InMenu);
+	void ReturnToLobby();
 
 	static constexpr unsigned int ScreenWidth = 600;
 	static constexpr unsigned int ScreenHeight = 800;
@@ -46,16 +48,17 @@ public:
 	inline Gdiplus::Point GetAppPosition() { return AppPosition; }
 	inline void RequestDestroy(Actor* DestroyTarget) { PendingDestroyActors.insert(DestroyTarget); }
 	inline void SetGameState(GameState InState) { State = InState; }
+	inline GameState GetGameState() { return State; }
 
 private:
 	GameManager() = default;
 	virtual ~GameManager() = default;
 
-	void ProcessPendingDestroyAtors();
 	void UnRegistActor(Actor* InActor);
 
 	void ProcessCollisions();					// 충돌 처리 함수
 	void ProcessPendingDestroyActors();			// 삭제 예정인 액터들을 실제로 정리하는 함수
+	void SaveRecord();
 
 	std::map<RenderLayer, std::set<Actor*>> Actors;
 	HWND MainWindow = nullptr;
@@ -74,7 +77,10 @@ private:
 	TimerUI* Timer = nullptr;
 	Background* BG = nullptr;
 	LobbyUI* Lobby = nullptr;
+	RecordUI* Record = nullptr;
 
 	GameState State = GameState::Playing;
+
+	std::set<float> RecordData;
 };
  

@@ -46,6 +46,7 @@ enum class ResourceType : uint8_t
 	Shield3,
 	Shield2,
 	Shield1,
+	Logo,
 };
 
 enum class CollisionType
@@ -64,6 +65,7 @@ enum class PhysicsLayer
 enum class GameState
 {
 	Lobby,
+	Record,
 	Playing,
 	GameOver,
 };

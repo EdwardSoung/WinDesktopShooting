@@ -14,11 +14,15 @@ public:
 	virtual void OnInitialize() override;
 	virtual void OnTick(float deltaTime) override;
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
-	
+		
 private:
 	int SelectedMenu = 1;
 	Gdiplus::FontFamily* Family;
 	Gdiplus::Font* TextFont;
 	Gdiplus::SolidBrush* TextBrush;
+
+	bool IsInitialized = false;
+
+	float InitializeTimer = 0.0f;
 };
 

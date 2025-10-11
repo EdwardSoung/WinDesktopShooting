@@ -4,6 +4,7 @@
 #include "BombSpawner.h"
 #include "PhysicsComponent.h"
 #include "Shield.h"
+#include "WinDesktopShooting.h"
 
 #include<algorithm>
 
@@ -16,23 +17,10 @@ void GameManager::Initialize()
 		//안만들어졌으면 에러 출력
 		MessageBox(MainWindow, L"Back Buffer Graphics Gnenarate failed!", L"Error", MB_OK | MB_ICONERROR);
 	}
-    
-    //우선은 아예 시작화면...
-    //Start
-    //Record(1~3)? -> 저장은 음..우선 끄면 하지말고
-    //Exit
-
-    //키 입력..
-    //음...받아서 다시 그려주고 해야하는데..메뉴가 문제네
-    //텍스트도 이미지인데... 
-
-    MainPlayer = Factory::Instance().SpawnActor<Player>(ResourceType::Player, RenderLayer::Player);
 
     BG = Factory::Instance().SpawnActor<Background>(ResourceType::Background, RenderLayer::Background);
-    //TestGrid = Factory::Instance().SpawnActor<TestGridActor>(ResourceType::Test, RenderLayer::Test);
-    Spawner = Factory::Instance().SpawnActor<BombSpawner>(ResourceType::None);
-    Timer = Factory::Instance().SpawnActor<TimerUI>(ResourceType::None, RenderLayer::UI);
-    //Factory::Instance().SpawnActor<Shield>(ResourceType::Shield3, RenderLayer::Player);
+    Lobby = Factory::Instance().SpawnActor<LobbyUI>(ResourceType::None, RenderLayer::UI);
+    SetGameState(GameState::Lobby);
 }
 
 void GameManager::OnDestroy()
@@ -68,30 +56,43 @@ void GameManager::Tick(float InDeltaTime)
         }
 
         ProcessCollisions();
-        ProcessPendingDestroyAtors();
+        ProcessPendingDestroyActors();
     }
-    
-    if (State == GameState::GameOver)
+    else if (State == GameState::GameOver)
     {
+        SaveRecord();
+
         RequestDestroy(Spawner);
         RequestDestroy(MainPlayer);
-        MainPlayer = nullptr;
         RequestDestroy(Timer);
+
+        ProcessPendingDestroyActors();
+        Spawner = nullptr;
+        MainPlayer = nullptr;
+        Timer = nullptr;
+
         Lobby = Factory::Instance().SpawnActor<LobbyUI>(ResourceType::None, RenderLayer::UI);
         SetGameState(GameState::Lobby);
     }
-
-    if (State == GameState::Lobby)
+    else if (State == GameState::Lobby)
     {
         for (auto ActorData : Actors)
         {
             for (auto actor : ActorData.second)
             {
                 actor->OnTick(InDeltaTime);
-            }
+            } 
         }
-
-        ProcessPendingDestroyAtors();
+    }
+    else if (State == GameState::Record)
+    {
+        for (auto ActorData : Actors)
+        {
+            for (auto actor : ActorData.second)
+            {
+                actor->OnTick(InDeltaTime);
+            } 
+        }
     }
 }
 
@@ -108,7 +109,6 @@ void GameManager::Draw(HDC InHdc)
                 actor->OnDraw(BackBufferGraphics);
             }
         }
-
     }
 
 	Gdiplus::Graphics GraphicsInstance(InHdc);
@@ -119,7 +119,10 @@ void GameManager::HandleKeyState(WPARAM InKey, bool InIsPressed)
 {
     if(MainPlayer)
         MainPlayer->HandleKeyState(InKey, InIsPressed);
-    
+
+    if (Record)
+        Record->HandleKeyState(InKey, InIsPressed);
+        
     if (Lobby)
         Lobby->HandleKeyState(InKey, InIsPressed);
 
@@ -146,9 +149,38 @@ void GameManager::RegistActor(RenderLayer InLayer, Actor* InActor)
 void GameManager::SelectLobby(LobbyMenuType InMenu)
 {
     LobbyMenuType menu = InMenu;
+    
+    RequestDestroy(Lobby);
+    ProcessPendingDestroyActors();
+    Lobby = nullptr;
+    if (menu == LobbyMenuType::Start)
+    {
+		MainPlayer = Factory::Instance().SpawnActor<Player>(ResourceType::Player, RenderLayer::Player);
+		Spawner = Factory::Instance().SpawnActor<BombSpawner>(ResourceType::None);
+		Timer = Factory::Instance().SpawnActor<TimerUI>(ResourceType::None, RenderLayer::UI);
+        SetGameState(GameState::Playing);
+    }
+    else if (menu == LobbyMenuType::Record)
+    {
+        Record = Factory::Instance().SpawnActor<RecordUI>(ResourceType::None, RenderLayer::UI);
+        SetGameState(GameState::Record);
+    }
+    else
+    {
+        DestroyWindow(MainWindow);
+    }
 }
 
-void GameManager::ProcessPendingDestroyAtors()
+void GameManager::ReturnToLobby()
+{
+    RequestDestroy(Record);
+    ProcessPendingDestroyActors();
+    Record = nullptr;
+    Lobby = Factory::Instance().SpawnActor<LobbyUI>(ResourceType::None, RenderLayer::UI);
+    SetGameState(GameState::Lobby);
+}
+
+void GameManager::ProcessPendingDestroyActors()
 {
     for (Actor* actor : PendingDestroyActors)
     {
@@ -161,6 +193,27 @@ void GameManager::ProcessPendingDestroyAtors()
     }
 
     PendingDestroyActors.clear();
+}
+
+void GameManager::SaveRecord()
+{
+    if (Timer && Timer->GetElapsedTime() > 0.0f)
+    {
+        if (RecordData.size() < 3)
+            RecordData.insert(Timer->GetElapsedTime());
+        else
+        {
+            for (float record : RecordData)
+            {
+                if (Timer->GetElapsedTime() < record)
+                {
+                    RecordData.insert(Timer->GetElapsedTime());
+                    RecordData.erase(RecordData.end());
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void GameManager::UnRegistActor(Actor* InActor)
@@ -202,17 +255,4 @@ void GameManager::ProcessCollisions()
     }
 }
 
-void GameManager::ProcessPendingDestroyActors()
-{
-    for (Actor* actor : PendingDestroyActors)
-    {
-        if (actor)
-        {
-            UnRegistActor(actor);
-            actor->OnDestroy();
-            delete actor;
-        }
-    }
-    PendingDestroyActors.clear();
-}
 

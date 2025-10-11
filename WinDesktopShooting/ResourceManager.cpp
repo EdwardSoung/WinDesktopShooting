@@ -28,6 +28,7 @@ void ResourceManager::GenerateResources()
     AddResource(ResourceType::Shield3, L"./Images/Shield3.png");
     AddResource(ResourceType::Shield2, L"./Images/Shield2.png");
     AddResource(ResourceType::Shield1, L"./Images/Shield1.png");
+    AddResource(ResourceType::Logo, L"./Images/Logo.png");
 }
 
 void ResourceManager::OnDestroy()

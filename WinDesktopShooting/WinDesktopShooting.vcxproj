@@ -134,6 +134,7 @@
     <ClInclude Include="LobbyUI.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="RecordUI.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Shield.h" />
@@ -157,6 +158,7 @@
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="RecordUI.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Shield.cpp" />
     <ClCompile Include="Singleton.cpp" />
