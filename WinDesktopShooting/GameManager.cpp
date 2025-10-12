@@ -163,6 +163,7 @@ void GameManager::SelectLobby(LobbyMenuType InMenu)
     else if (menu == LobbyMenuType::Record)
     {
         Record = Factory::Instance().SpawnActor<RecordUI>(ResourceType::None, RenderLayer::UI);
+        Record->SetNumber(RecordData);
         SetGameState(GameState::Record);
     }
     else
@@ -203,12 +204,13 @@ void GameManager::SaveRecord()
             RecordData.insert(Timer->GetElapsedTime());
         else
         {
-            for (float record : RecordData)
+            for (auto record = RecordData.rbegin(); record != RecordData.rend(); record++)
             {
-                if (Timer->GetElapsedTime() < record)
+                if (Timer->GetElapsedTime() > *record)
                 {
+                    //맨 앞에꺼 제거
+                    RecordData.erase(RecordData.begin());
                     RecordData.insert(Timer->GetElapsedTime());
-                    RecordData.erase(RecordData.end());
                     break;
                 }
             }

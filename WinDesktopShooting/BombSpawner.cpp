@@ -18,9 +18,9 @@ void BombSpawner::OnTick(float deltaTime)
     TotalPlayTimer += deltaTime;
 
 
-    //최저 0.1, 5초마다 0.05초씩 빨라짐 음..
-    float value = 1.0f - (int)(TotalPlayTimer / 5.0f) * 0.1f;
-    spawnInterval = value > 0.2f ? value : 0.2f;
+    //최저 0.1, 5초마다 0.1초씩 빨라짐 음..
+    float value = 1.0f - (int)(TotalPlayTimer / 5.0f) * 0.15f;
+    spawnInterval = value > 0.1f ? value : 0.1f;
     // 초기 지연 시간이 지났는지 확인
     if (!hasInitialDelayPassed)
     {

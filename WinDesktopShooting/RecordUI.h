@@ -1,5 +1,6 @@
 #pragma once
 #include "UserInterface.h"
+#include <set>
 class RecordUI :
     public UserInterface
 {
@@ -13,15 +14,22 @@ public:
 	virtual void OnTick(float deltaTime) override;
 	virtual void OnDraw(Gdiplus::Graphics* InGraphics) override;
 
+	void SetNumber(std::set<float> numbers);
 private:
-	void SetNumber(float number);
-	void RenderDigit(Gdiplus::Graphics* graphics, int digit, unsigned int index);
+	void RenderDigit(Gdiplus::Graphics* graphics, int digit, unsigned int index, int posIndex);
+	const WCHAR* GetRankText(int index);
 
+	Gdiplus::FontFamily* Family = nullptr;
+	Gdiplus::Font* TextFont = nullptr;
+	Gdiplus::Font* DescFont = nullptr;
+	Gdiplus::SolidBrush* TextBrush = nullptr;
 
 	float targetNumber = 0.0f;	// 목표 숫자
-	std::vector<int> digits;	// 각 자리 숫자를 저장하는 벡터(0.0은 들어가 있어야 하므로 최소 2개 자리로 예약)
+	std::vector<std::vector<int>> Digits;
 	std::vector<Gdiplus::Bitmap*> digitImages;	// 각 자리 숫자 이미지
 	Gdiplus::Bitmap* dotImage = nullptr;		// 소수점 이미지
+
+	std::vector<int> YPositions;
 
 	int SelectedMenu = 0;
 	bool IsInitialized = false;
